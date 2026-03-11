@@ -3,6 +3,7 @@ import select
 import subprocess
 import ipaddress
 from systemd import journal
+from reputation_service import ReputationDB, reputation_service
 
 # Determines which strings to look for
 SSH_SERVICE_NAME = "ssh.service" # some distros might call it sshd.service
@@ -24,6 +25,9 @@ INVALID_USER_RE = re.compile(r"(Invalid user|Connection closed by authenticating
 FAILED_RE = re.compile(r"(Unable to negotiate with|banner exchange: Connection from) (\S+) port .*") # Failures for reasons other than incorrect password, which are unlikely to be legit user errors
 PASS_INCORRECT_RE = re.compile("Failed password for( invalid user)? (\S+) from (\S+) port .*")
 ACCEPT_RE = re.compile(r"Accepted (\S+) for (\S+) from (\S+)")
+
+# initialize reputation db
+db = ReputationDB()
 
 def ban_bad_ip(ip):
     addr = ipaddress.ip_address(ip)
@@ -49,8 +53,11 @@ def ban_bad_ip(ip):
 
 def handle_bad_ip(ip):
     print(f"Bad IP detected: {ip}")
-    # todo, actually connect it to the reputation checker
-    ban_bad_ip(ip)
+    rep = reputation_service(db, ip)
+    if rep:
+        ban_bad_ip(ip)
+    else:
+        print(f"Ignoring IP {ip}")
 
 def extract_ip(msg):
     #Return IP if message indicates a failure or incorrect pass
