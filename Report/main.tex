@@ -239,7 +239,7 @@ The goal is to reduce repeated malicious SSH connection attempts by using IP rep
 \section{Evaluation}
 
 \subsection{Experimental Setup}
-The test was conducted over a period from \texttt{2026-04-28 15:33:33 UTC} to \texttt{2026-04-30 08:36:55 UTC} (approximately 2 days and 5 hours). During this time:
+The test was conducted on a cloud VPS with port 22 (\texttt{sshd}) exposed to the internet. It was measured over a period from \texttt{2026-04-28 15:33:33 UTC} to \texttt{2026-04-30 08:36:55 UTC} (approximately 2 days and 5 hours). During this time:
 \begin{itemize}
     \item Existing \texttt{fail2ban} protections were disabled.
     \item \texttt{sshd} password authentication was enabled.
@@ -271,7 +271,8 @@ From the observed data:
 \end{itemize}
 
 \subsection{Discussion}
-These results indicate that the firewall rules significantly reduced the load on the SSH service by filtering the majority of malicious traffic upstream. Additionally, early blocking of most unique IPs demonstrates the system's effectiveness at mitigating repeated intrusion attempts with minimal exposure.
+As we intended, the firewall rules eliminate the vast majority of connection attempts, with 80.2\% of all IPs that attempt to connect to us being blocked on the very first try, and 83.6\% of total connections never reach \texttt{sshd} at all. This indicates that utilizing crowd-sourced IP reputation info is a useful layer of defense to reduce connection attempts and load on \texttt{sshd}, in addition to further layers such as traditional fail2ban and of course, strong authentication.
+
 
 % --- 7. Installation ---
 \section{Installation}
