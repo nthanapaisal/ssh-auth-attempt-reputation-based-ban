@@ -69,7 +69,8 @@
 
     \vspace{1.5cm}
     \textbf{GitHub:} \small\url{https://github.com/nthanapaisal/ssh-auth-attempt-reputation-based-ban}\\[0.6em]
-
+    \textbf{Demo:} \small\url{https://drive.google.com/file/d/1mPqFKtp0mOVPOBIdwFrvvuMNmrOMHcpk/}\\[0.6em]
+    
     \vfill
     {\normalsize April 2026}
 \end{titlepage}
@@ -272,12 +273,16 @@ From the observed data:
 \subsection{Discussion}
 As we intended, the firewall rules eliminate the vast majority of connection attempts, with 80.2\% of all IPs that attempt to connect to us being blocked on the very first try, and 83.6\% of total connections never reach \texttt{sshd} at all. This indicates that utilizing crowd-sourced IP reputation info is a useful layer of defense to reduce connection attempts and load on \texttt{sshd}, in addition to further layers such as traditional fail2ban and of course, strong authentication.
 
+We are unable to directly evaluate false positives because legitimate IP addresses are not listed in AbuseIPDB, which is an external system. Additionally, we avoid adding legitimate IPs to the database for testing, as this would interfere with the integrity of the system. However, in practical deployments, false positives can be mitigated through mechanisms such as firewall allowlists (“firewall rules”), especially in environments where the set of legitimate IPs is small and well-defined.
+
+For false negatives, the objective of our project is not to block all malicious IPs, but rather to block IPs that are identified by AbuseIPDB. Our results show that this approach successfully blocks approximately 82\% of malicious IPs. Improving coverage beyond this point depends on the quality and completeness of the external database. Therefore, the primary way to reduce false negatives is to contribute additional threat intelligence back to AbuseIPDB and rely on improvements made by the broader community.
+
 
 % --- 7. Installation ---
 \section{Installation}
 
 
-\textbf{Prerequisites:} Python 3.8+, \texttt{nftables}, \texttt{systemd}, and an AbuseIPDB API key (\url{https://www.abuseipdb.com/}).
+\textbf{Prerequisites:} Python 3.8+, SQLite, \texttt{nftables}, \texttt{systemd}, and an AbuseIPDB API key (\url{https://www.abuseipdb.com/})
 \vspace{6pt}
 \begin{lstlisting}[language=bash]
 # Set environment variables

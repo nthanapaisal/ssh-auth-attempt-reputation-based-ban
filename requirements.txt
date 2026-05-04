@@ -1,2 +1,5 @@
-requests
-systemd-python
+torch
+torchvision
+open-clip-torch
+Pillow
+tqdm
