@@ -273,9 +273,17 @@ From the observed data:
 \subsection{Discussion}
 As we intended, the firewall rules eliminate the vast majority of connection attempts, with 80.2\% of all IPs that attempt to connect to us being blocked on the very first try, and 83.6\% of total connections never reach \texttt{sshd} at all. This indicates that utilizing crowd-sourced IP reputation info is a useful layer of defense to reduce connection attempts and load on \texttt{sshd}, in addition to further layers such as traditional fail2ban and of course, strong authentication.
 
-We are unable to directly evaluate false positives because legitimate IP addresses are not listed in AbuseIPDB, which is an external system. Additionally, we avoid adding legitimate IPs to the database for testing, as this would interfere with the integrity of the system. However, in practical deployments, false positives can be mitigated through mechanisms such as firewall allowlists (“firewall rules”), especially in environments where the set of legitimate IPs is small and well-defined.
+We are unable to directly evaluate false positives because legitimate IP addresses are not listed in AbuseIPDB, which is an external system. Additionally, we avoid adding legitimate IPs to the database for testing, as this would interfere with the integrity of the system. However, in practical deployments, false positives can be mitigated through manual firewall rules to ensure ssh traffic from known-trustworthy IPs is always allowed, especially in environments where the set of legitimate IPs is small and well-defined (as is generally the case for ssh).
 
-For false negatives, the objective of our project is not to block all malicious IPs, but rather to block IPs that are identified by AbuseIPDB. Our results show that this approach successfully blocks approximately 82\% of malicious IPs. Improving coverage beyond this point depends on the quality and completeness of the external database. Therefore, the primary way to reduce false negatives is to contribute additional threat intelligence back to AbuseIPDB and rely on improvements made by the broader community.
+For false negatives, the objective of our project is not to block all malicious IPs, but rather to block IPs that are identified by AbuseIPDB. Our results show that this approach successfully blocks approximately 82\% of malicious IPs. Improving coverage beyond this point depends on the quality and completeness of the external database. Therefore, the primary way to reduce false negatives is to contribute additional threat intelligence back to AbuseIPDB and rely on improvements made by the broader community. There are existing soultions that automate this procedure by integrating AbuseIPDB with fail2ban, which would catch persistent attackers that we miss with our solution.
+
+\subsection{Opportunities for futher improvement}
+As our project in its current state is a proof-of-concept, there are some changes that could be made to turn it into a deliverable package, and to further extend its functionality:
+\begin{itemize}
+    \item Create systemd unit files for the two services, to ensure they auto start and stop alongside \texttt{sshd}
+    \item Move variables that users may want to configure (e.g., attempt threshold, timeout length) to a config file in \texttt{/etc}. Additionally, set AbuseIPDB API key and database path there instead of an environment variable.
+    \item Support more programs besides \texttt{sshd}, such as dovecot, mysql, etc.
+\end{itemize}
 
 
 % --- 7. Installation ---
